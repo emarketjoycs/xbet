@@ -122,7 +122,7 @@ contract BettingPool is ReentrancyGuard, Pausable, Ownable {
     );
     
     // ============ Constructor ============
-    constructor(address _usdcToken, address _houseWallet) {
+    constructor(address _usdcToken, address _houseWallet) Ownable(msg.sender) {
         require(_usdcToken != address(0), "USDC address cannot be zero");
         require(_houseWallet != address(0), "House wallet cannot be zero");
         
