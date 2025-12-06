@@ -1,0 +1,32 @@
+{
+  "name": "dxbet-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts para DxBet - Apostas Descentralizadas P2P",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run deploy.js --network arbitrumSepolia",
+    "deploy:mainnet": "hardhat run deploy.js --network arbitrumOne",
+    "verify": "hardhat verify",
+    "clean": "hardhat clean"
+  },
+  "keywords": [
+    "ethereum",
+    "smart-contracts",
+    "betting",
+    "arbitrum",
+    "defi"
+  ],
+  "author": "DxBet",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.3.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  }
+}
