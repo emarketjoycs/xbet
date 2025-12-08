@@ -119,7 +119,7 @@ export default function Home() {
               
               <div className="mt-4 flex justify-between items-center text-xs font-mono text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Users size={14} /> Pool: <sp  return (  <div className="flex flex-col min-h-screen">
+                  <Users size={14} /> Pool: <span className="text-white">{currentPool}</span>
       {/* Hero Section */}
       <section className="relative h-[600px] w-full overflow-hidden flex items-center">
         {/* Background Image with Overlay */}
