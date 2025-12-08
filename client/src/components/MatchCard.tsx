@@ -27,12 +27,12 @@ export default function MatchCard({ match }: MatchCardProps) {
 
             <div className="flex items-center justify-between gap-4 mb-2 h-20">
               <div className="text-center flex-1">
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight">{match.homeTeam}</h3>
+                <h3 className="text-lg md:text-xl font-bold text-white mb-1 leading-tight">{match.homeTeam}</h3>
                 <span className="text-xs text-muted-foreground uppercase tracking-widest">Mandante</span>
               </div>
               <div className="text-2xl font-bold text-muted-foreground">VS</div>
               <div className="text-center flex-1">
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight">{match.awayTeam}</h3>
+                <h3 className="text-lg md:text-xl font-bold text-white mb-1 leading-tight">{match.awayTeam}</h3>
                 <span className="text-xs text-muted-foreground uppercase tracking-widest">Visitante</span>
               </div>
             </div>
