@@ -120,10 +120,16 @@ export default function Home() {
               <div className="mt-4 flex justify-between items-center text-xs font-mono text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Users size={14} /> Pool: <span className="text-white">{currentPool}</span>
-      {/* Hero Section */}
-      <section className="relative h-[600px] w-full overflow-hidden flex items-center">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock size={14} /> Encerra em: 45min
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
           <img 
             src="/images/hero-banner.png" 
             alt="Cyberpunk Stadium" 
