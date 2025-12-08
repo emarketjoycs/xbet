@@ -10,9 +10,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Link } from "wouter";
 import { ArrowRight, Trophy, Clock, TrendingUp, ShieldCheck, Users, Activity } from "lucide-react";
 
-export default function Home() {
-  // Dados simulados para a partida
-  // Dados de mock para múltiplos jogos em destaque
+// Dados de mock para múltiplos jogos em destaque
 const FEATURED_MATCHES = [
   { id: 1, league: "Brasileirão Série A", homeTeam: "Santos", awayTeam: "Corinthians", startTime: "Hoje, 21:30", status: "Ao Vivo", poolSize: "12,450 USDC", odds: { home: 2.45, draw: 3.10, away: 2.85 } },
   { id: 2, league: "Premier League", homeTeam: "Liverpool", awayTeam: "Manchester Utd", startTime: "Amanhã, 16:00", status: "Aberto", poolSize: "25,100 USDC", odds: { home: 1.80, draw: 3.50, away: 4.20 } },
