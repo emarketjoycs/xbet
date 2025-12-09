@@ -16,8 +16,8 @@ export default function MatchCard({ match }: MatchCardProps) {
   const [selectedCategory, setSelectedCategory] = useState<'Primeiro Tempo' | 'Segundo Tempo' | 'Jogo Todo'>('Jogo Todo'); // Default category
 
   return (
-    <div className="cyber-card p-1 rounded-none group hover:border-primary/50 transition-colors">
-      <div className="bg-card/50 p-6 md:p-8 backdrop-blur-sm">
+	    <div className="cyber-card p-1 rounded-none group hover:border-primary/50 transition-colors h-full flex flex-col">
+	      <div className="bg-card/50 p-6 md:p-8 backdrop-blur-sm flex-grow flex flex-col justify-between">
         <div className="flex flex-col justify-between items-center gap-8">
           
           {/* Match Info */}
@@ -44,9 +44,10 @@ export default function MatchCard({ match }: MatchCardProps) {
             </div>
           </div>
 
-          {/* Betting Options */}
-          <div className="w-full">
-            <div className="grid grid-cols-3 gap-4">
+	          {/* Betting Options */}
+	          <div className="w-full">
+	            <p className="text-sm font-medium text-center text-muted-foreground mb-2">Selecione a Odd para apostar</p>
+	            <div className="grid grid-cols-3 gap-4 h-full">-full">
               {/* Home Win */}
               <button onClick={() => { setSelectedOutcome('home'); setDialogOpen(true); }} className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
                 <span className="text-sm text-muted-foreground mb-1 group-hover/btn:text-white">{match.homeTeam.toUpperCase()}</span>
@@ -69,26 +70,34 @@ export default function MatchCard({ match }: MatchCardProps) {
               </button>
             </div>
             
-            <div className="mt-4 flex justify-between items-center text-xs font-mono text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Users size={14} /> Pool: <span className="text-white">{match.poolSize}</span>
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock size={14} /> Encerra em: {match.timeRemaining}
-              </span>
-            </div>
+	            <div className="mt-4 flex flex-col gap-1 text-xs font-mono text-muted-foreground">
+	              <span className="flex items-center gap-1">
+	                <Users size={14} /> Pool: <span className="text-white">{match.poolSize}</span>
+	              </span>
+	              <span className="flex items-center gap-1">
+	                <Clock size={14} /> Encerra em: {match.timeRemaining}
+	              </span>
+	            </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              {match.betCategories.map(category => (
-                <Badge 
-                  key={category} 
-                  variant={selectedCategory === category ? 'default' : 'secondary'}
-                  onClick={() => setSelectedCategory(category as any)}
-                  className="text-xs cursor-pointer transition-colors"
-                >
-                  {category}
-                </Badge>
-              ))}
+            <div className="mt-4">
+              <p className="text-sm font-medium text-center text-muted-foreground mb-2">Escolha a categoria</p>
+              <div className="flex justify-center gap-2">
+                {match.betCategories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category as any)}
+                    className={`
+                      text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-all duration-200
+                      ${selectedCategory === category 
+                        ? 'bg-primary text-black shadow-[0_0_10px_var(--primary)]' 
+                        : 'bg-muted/50 text-muted-foreground hover:bg-muted/80'
+                      }
+                    `}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
