@@ -1,6 +1,9 @@
+import React, { useState } from 'react';
 import { Trophy, Clock, Users, Activity } from "lucide-react";
 import { Match } from "../lib/mockData";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import BetForm from './BetForm'; // Importar o novo componente
 
 interface MatchCardProps {
   match: Match;
@@ -8,6 +11,9 @@ interface MatchCardProps {
 
 export default function MatchCard({ match }: MatchCardProps) {
   const isLive = match.status === 'Ao Vivo';
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [selectedOutcome, setSelectedOutcome] = useState<'home' | 'draw' | 'away' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<'Primeiro Tempo' | 'Segundo Tempo' | 'Jogo Todo'>('Jogo Todo'); // Default category
 
   return (
     <div className="cyber-card p-1 rounded-none group hover:border-primary/50 transition-colors">
@@ -27,12 +33,12 @@ export default function MatchCard({ match }: MatchCardProps) {
 
             <div className="flex items-center justify-between gap-4 mb-2 h-20">
               <div className="text-center flex-1">
-                <h3 className="text-lg md:text-xl font-bold text-white mb-1 leading-tight">{match.homeTeam}</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight">{match.homeTeam}</h3>
                 <span className="text-xs text-muted-foreground uppercase tracking-widest">Mandante</span>
               </div>
               <div className="text-2xl font-bold text-muted-foreground">VS</div>
               <div className="text-center flex-1">
-                <h3 className="text-lg md:text-xl font-bold text-white mb-1 leading-tight">{match.awayTeam}</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight">{match.awayTeam}</h3>
                 <span className="text-xs text-muted-foreground uppercase tracking-widest">Visitante</span>
               </div>
             </div>
@@ -42,21 +48,21 @@ export default function MatchCard({ match }: MatchCardProps) {
           <div className="w-full">
             <div className="grid grid-cols-3 gap-4">
               {/* Home Win */}
-              <button className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
+              <button onClick={() => { setSelectedOutcome('home'); setDialogOpen(true); }} className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
                 <span className="text-sm text-muted-foreground mb-1 group-hover/btn:text-white">{match.homeTeam.toUpperCase()}</span>
                 <span className="text-2xl font-bold text-primary font-mono">{match.odds.home.toFixed(2)}</span>
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-primary scale-x-0 group-hover/btn:scale-x-100 transition-transform origin-left"></div>
               </button>
 
               {/* Draw */}
-              <button className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-secondary hover:bg-secondary/10 transition-all duration-300">
+              <button onClick={() => { setSelectedOutcome('draw'); setDialogOpen(true); }} className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-secondary hover:bg-secondary/10 transition-all duration-300">
                 <span className="text-sm text-muted-foreground mb-1 group-hover/btn:text-white">EMPATE</span>
                 <span className="text-2xl font-bold text-secondary font-mono">{match.odds.draw.toFixed(2)}</span>
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-secondary scale-x-0 group-hover/btn:scale-x-100 transition-transform origin-left"></div>
               </button>
 
               {/* Away Win */}
-              <button className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
+              <button onClick={() => { setSelectedOutcome('away'); setDialogOpen(true); }} className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
                 <span className="text-sm text-muted-foreground mb-1 group-hover/btn:text-white">{match.awayTeam.toUpperCase()}</span>
                 <span className="text-2xl font-bold text-primary font-mono">{match.odds.away.toFixed(2)}</span>
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-primary scale-x-0 group-hover/btn:scale-x-100 transition-transform origin-left"></div>
@@ -74,7 +80,12 @@ export default function MatchCard({ match }: MatchCardProps) {
 
             <div className="mt-4 flex flex-wrap gap-2">
               {match.betCategories.map(category => (
-                <Badge key={category} variant="secondary" className="text-xs">
+                <Badge 
+                  key={category} 
+                  variant={selectedCategory === category ? 'default' : 'secondary'}
+                  onClick={() => setSelectedCategory(category as any)}
+                  className="text-xs cursor-pointer transition-colors"
+                >
                   {category}
                 </Badge>
               ))}
@@ -83,6 +94,18 @@ export default function MatchCard({ match }: MatchCardProps) {
 
         </div>
       </div>
+      <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="cyber-dialog">
+          {selectedOutcome && (
+            <BetForm 
+              match={match} 
+              selectedOutcome={selectedOutcome} 
+              selectedCategory={selectedCategory}
+              onClose={() => setDialogOpen(false)} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
