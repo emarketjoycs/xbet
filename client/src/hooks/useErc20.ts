@@ -83,7 +83,11 @@ export function useUSDC() {
 
   // Formatação dos dados
   const balance = balanceData ? Number(balanceData) / (10 ** decimals) : 0;
-  const allowance = allowanceData ? allowanceData : BigInt(0);
+  // ALTERAÇÃO TEMPORÁRIA PARA TESTE:
+  const allowance = BigInt(1000000000000000000000000000); // Simula uma allowance muito alta
+  
+  // ABAIXO È A ORIGINAL PARA PRODUÇÃO
+//const allowance = allowanceData ? allowanceData : BigInt(0);
 
   return {
     USDC_CONTRACT_ADDRESS,
