@@ -10,12 +10,15 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isConnected } = useAccount();
 
-  // Redirecionar para dashboard quando conectar
-  useEffect(() => {
-    if (isConnected && location === '/') {
-      navigate('/dashboard');
-    }
-  }, [isConnected, location, navigate]);
+  // A lógica de redirecionamento automático foi removida para permitir que o usuário navegue para a Home
+  // mesmo estando conectado, conforme solicitado. O usuário pode acessar o Dashboard através do link no menu.
+  // Se o redirecionamento for estritamente necessário, ele deve ser implementado no componente ConnectButton
+  // ou em um componente de rota de forma que não impeça a navegação subsequente.
+  // useEffect(() => {
+  //   if (isConnected && location === '/') {
+  //     navigate('/dashboard');
+  //   }
+  // }, [isConnected, location, navigate]);
 
   const navItems = [
     { label: 'HOME', path: '/' },
