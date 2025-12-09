@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { formatUnits } from 'viem';
+import { formatUnits, parseUnits } from 'viem';
 
 // Mapeamento de resultados para o contrato (exemplo)
 const OUTCOME_MAP = {
