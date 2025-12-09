@@ -131,7 +131,7 @@ export function useIsOwner() {
   
   // *** SIMULAÇÃO DE ADMIN PARA TESTES ***
   // Substitua 'SEU_ENDERECO_DE_TESTE' pelo endereço da sua carteira de teste (em minúsculas)
-  const SIMULATED_OWNER_ADDRESS = "0xAD1e0c6495aC38D3b88f2aD32F963E491926EC33".toLowerCase(); 
+  const SIMULATED_OWNER_ADDRESS = "0xad1e0c6495ac38d3b88f2ad32f963e491926ec33".toLowerCase(); 
   
   // A leitura do contrato real pode ser mantida, mas a lógica de verificação será alterada
   const { data: ownerAddress, isLoading: isLoadingOwner } = useReadContract({
