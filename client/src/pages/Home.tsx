@@ -8,6 +8,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import MatchCard from "@/components/MatchCard";
+import { Dialog } from "@/components/ui/dialog"; // Adicionar Dialog para evitar erro de componente não definido
 import { mockMatches } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
