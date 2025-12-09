@@ -47,7 +47,7 @@ export default function MatchCard({ match }: MatchCardProps) {
 	          {/* Betting Options */}
 	          <div className="w-full">
 	            <p className="text-sm font-medium text-center text-muted-foreground mb-2">Selecione a Odd para apostar</p>
-	            <div className="grid grid-cols-3 gap-4 h-full">-full">
+		            <div className="grid grid-cols-3 gap-4 h-full">
               {/* Home Win */}
               <button onClick={() => { setSelectedOutcome('home'); setDialogOpen(true); }} className="group/btn relative flex flex-col items-center justify-center p-4 bg-muted/30 border border-border hover:border-primary hover:bg-primary/10 transition-all duration-300">
                 <span className="text-sm text-muted-foreground mb-1 group-hover/btn:text-white">{match.homeTeam.toUpperCase()}</span>
