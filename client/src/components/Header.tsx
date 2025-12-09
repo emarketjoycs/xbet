@@ -4,21 +4,14 @@ import { cn } from '@/lib/utils';
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import USDCBalanceDisplay from './USDCBalanceDisplay'; // 1. NOVA IMPORTAÇÃO
 
 export default function Header() {
   const [location, navigate] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isConnected } = useAccount();
 
-  // A lógica de redirecionamento automático foi removida para permitir que o usuário navegue para a Home
-  // mesmo estando conectado, conforme solicitado. O usuário pode acessar o Dashboard através do link no menu.
-  // Se o redirecionamento for estritamente necessário, ele deve ser implementado no componente ConnectButton
-  // ou em um componente de rota de forma que não impeça a navegação subsequente.
-  // useEffect(() => {
-  //   if (isConnected && location === '/') {
-  //     navigate('/dashboard');
-  //   }
-  // }, [isConnected, location, navigate]);
+  // O código de debug de ETH foi removido aqui.
 
   const navItems = [
     { label: 'HOME', path: '/' },
@@ -60,16 +53,14 @@ export default function Header() {
 
         {/* Connect Wallet & Mobile Menu Toggle */}
         <div className="flex items-center gap-4">
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4"> {/* 3. MUDANÇA DE CLASSE PARA ALINHAMENTO */}
+            <USDCBalanceDisplay /> {/* 3. NOVO COMPONENTE */}
             <ConnectButton 
               accountStatus={{
                 smallScreen: 'avatar',
                 largeScreen: 'full',
               }}
-              showBalance={{
-                smallScreen: false,
-                largeScreen: true,
-              }}
+              showBalance={false} // 3. DESABILITA SALDO NATIVO (ETH)
             />
           </div>
           
