@@ -84,11 +84,11 @@ export default function Home() {
 	            }}
 	            className="w-full relative px-12" // Adicionado padding para as setas
 	          >
-	            <CarouselContent>
+		            <CarouselContent className="items-stretch">
 	              {mockMatches.map((match) => (
-	                <CarouselItem key={match.id} className="md:basis-1/2 lg:basis-1/3">
-	                  <MatchCard match={match} />
-	                </CarouselItem>
+		                <CarouselItem key={match.id} className="md:basis-1/2 lg:basis-1/3 flex">
+		                  <MatchCard match={match} />
+		                </CarouselItem>
 	              ))}
 	            </CarouselContent>
 	            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2" />
