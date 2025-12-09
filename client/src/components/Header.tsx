@@ -10,12 +10,19 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isConnected } = useAccount();
 
-  // Redirecionar para dashboard quando conectar
+  // Redirecionar para dashboard quando conectar, mas apenas se a conexão for nova e estiver na Home
   useEffect(() => {
     if (isConnected && location === '/') {
-      navigate('/dashboard');
+      // Usamos um timeout para garantir que o estado de conexão esteja totalmente estabelecido
+      // e para evitar que o wouter entre em loop de navegação.
+      const timer = setTimeout(() => {
+        navigate('/dashboard');
+      }, 100); 
+      return () => clearTimeout(timer);
     }
   }, [isConnected, location, navigate]);
+
+
 
   const navItems = [
     { label: 'HOME', path: '/' },
