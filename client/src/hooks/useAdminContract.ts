@@ -1,4 +1,4 @@
-import { useReadContract, useWriteContract, useAccount } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { BetOutcome, MatchStatus } from '@shared/const'; // Enums do Smart Contract BettingPool.sol
 
 /**
@@ -129,25 +129,22 @@ export type MatchData = {
 export function useIsOwner() {
   const { address, isConnected } = useAccount();
   
-  // *** SIMULAÇÃO DE ADMIN PARA TESTES ***
-  // Substitua 'SEU_ENDERECO_DE_TESTE' pelo endereço da sua carteira de teste (em minúsculas)
-  const SIMULATED_OWNER_ADDRESS = "0xad1e0c6495ac38d3b88f2ad32f963e491926ec33".toLowerCase(); 
+  // ------------------------------------------------------------------
+  // *** SIMULAÇÃO DE ADMIN PARA TESTES - INÍCIO ***
+  // Endereço de carteira do usuário para simular o Owner
+  const SIMULATED_OWNER_ADDRESS = "0xad1e0c6495ac38d3b88f2ad32f963e491926ec33"; 
   
-  // A leitura do contrato real pode ser mantida, mas a lógica de verificação será alterada
-  const { data: ownerAddress, isLoading: isLoadingOwner } = useReadContract({
-    address: BETTING_CONTRACT_ADDRESS,
-    abi: ADMIN_ABI,
-    functionName: 'owner',
-    query: {
-      enabled: isConnected,
-    },
-  });
-
   // Acesso de administrador é concedido se o endereço conectado for o endereço simulado
   const isOwner = isConnected && address?.toLowerCase() === SIMULATED_OWNER_ADDRESS;
 
-  // Você pode retornar o endereço simulado como ownerAddress para fins de exibição
-  return { isOwner, isLoadingOwner: false, ownerAddress: SIMULATED_OWNER_ADDRESS };
+  // Retornamos o resultado simulado, ignorando a leitura do contrato
+  return { 
+    isOwner, 
+    isLoadingOwner: false, 
+    ownerAddress: SIMULATED_OWNER_ADDRESS 
+  };
+  // *** SIMULAÇÃO DE ADMIN PARA TESTES - FIM ***
+  // ------------------------------------------------------------------
 }
 
 /**
