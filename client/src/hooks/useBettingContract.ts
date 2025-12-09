@@ -24,10 +24,10 @@ const BETTING_ABI = [
     type: "function"
   },
   {
-    inputs: [{ name: "matchId", type: "uint256" }, { name: "outcome", type: "uint8" }],
+    inputs: [{ name: "matchId", type: "uint256" }, { name: "outcome", type: "uint8" }, { name: "amount", type: "uint256" }],
     name: "placeBet",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function"
   },
   {
@@ -56,14 +56,14 @@ export function useBettingContract() {
   const placeBet = (matchId: number, outcome: number, amount: string) => {
     // NOTA: Para tokens ERC20 (USDC), primeiro é necessário chamar 'approve' no contrato do token.
     // Esta implementação assume ETH nativo ou que o approve já foi feito.
-    // Futuramente implementar fluxo de Approve -> Bet.
+      // O valor da aposta deve ser aprovado previamente via 'approve' no contrato USDC.
     
     writeContract({
       address: BETTING_CONTRACT_ADDRESS,
       abi: BETTING_ABI,
       functionName: 'placeBet',
-      args: [BigInt(matchId), outcome],
-      // value: parseEther(amount) // Se for ETH nativo
+      args: [BigInt(matchId), outcome, parseUnits(amount, 6)], // USDC tem 6 casas decimais
+      // value: parseEther(amount) // Removido, pois aposta é feita com token ERC20 (USDC)
     });
   };
 
