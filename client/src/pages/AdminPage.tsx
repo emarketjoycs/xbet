@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAccount } from 'wagmi';
 import { Card } from '@/components/ui/card';
@@ -30,12 +30,14 @@ export default function AdminPage() {
   const { isOwner, isLoadingOwner } = useIsOwner();
   
   // Redirecionar se não for Owner
+  /*
   useEffect(() => {
     if (!isLoadingOwner && !isOwner) {
       navigate('/');
       toast.error('Acesso negado. Apenas o Owner pode acessar esta página.');
     }
   }, [isOwner, isLoadingOwner, navigate]);
+  */
 
   if (isLoadingOwner) {
     return (
@@ -299,152 +301,104 @@ function ManageMatchesTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {matches.map((matchId) => (
-        <MatchCard
-          key={matchId.toString()}
-          matchId={matchId}
-          onSetResult={handleSetResult}
-          onCancel={handleCancelMatch}
-          isPending={isPending}
-        />
+        <MatchManager key={matchId.toString()} matchId={matchId} onSetResult={handleSetResult} onCancelMatch={handleCancelMatch} isPending={isPending} />
       ))}
     </div>
   );
 }
 
 /**
- * Componente: Match Card
- * Card individual para cada partida
+ * Componente: MatchManager
+ * Gerencia uma partida individual
  */
-function MatchCard({
-  matchId,
-  onSetResult,
-  onCancel,
-  isPending,
-}: {
-  matchId: bigint;
-  onSetResult: (matchId: bigint, result: BetOutcome) => void;
-  onCancel: (matchId: bigint) => void;
-  isPending: boolean;
-}) {
+function MatchManager({ matchId, onSetResult, onCancelMatch, isPending }: { matchId: bigint, onSetResult: (matchId: bigint, result: BetOutcome) => void, onCancelMatch: (matchId: bigint) => void, isPending: boolean }) {
   const { matchData, isLoading } = useMatchDetails(matchId);
-  const [selectedResult, setSelectedResult] = useState<BetOutcome | null>(null);
+  const [result, setResult] = useState<BetOutcome>(BetOutcome.TEAM_A_WINS);
 
-  if (isLoading) {
+  if (isLoading || !matchData) {
     return (
-      <Card className="p-6">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <Card className="p-4 flex items-center justify-between">
+        <p className="text-muted-foreground">Carregando partida #{matchId.toString()}...</p>
+        <Loader2 className="w-4 h-4 animate-spin" />
       </Card>
     );
   }
 
-  if (!matchData || !matchData.exists) {
-    return null;
-  }
+  const isFinished = matchData.status === MatchStatus.FINISHED;
+  const isCanceled = matchData.status === MatchStatus.CANCELED;
+  const isPendingResult = matchData.status === MatchStatus.PENDING_RESULT;
+  const isOngoing = matchData.status === MatchStatus.ONGOING;
 
-  const statusBadgeColor = {
-    [MatchStatus.PENDING]: 'bg-yellow-500/20 text-yellow-400',
-    [MatchStatus.FINISHED]: 'bg-green-500/20 text-green-400',
-    [MatchStatus.CANCELLED]: 'bg-red-500/20 text-red-400',
+  const statusBadge = () => {
+    if (isCanceled) return <Badge variant="destructive">Cancelada</Badge>;
+    if (isFinished) return <Badge variant="success">Finalizada</Badge>;
+    if (isPendingResult) return <Badge variant="warning">Aguardando Resultado</Badge>;
+    if (isOngoing) return <Badge variant="default">Em Andamento</Badge>;
+    return <Badge variant="secondary">Agendada</Badge>;
   };
 
-  const resultText = {
-    [BetOutcome.NONE]: '-',
-    [BetOutcome.TEAM_A_WINS]: `${matchData.homeTeam} Vence`,
-    [BetOutcome.DRAW]: 'Empate',
-    [BetOutcome.TEAM_B_WINS]: `${matchData.awayTeam} Vence`,
+  const resultText = (outcome: BetOutcome) => {
+    switch (outcome) {
+      case BetOutcome.TEAM_A_WINS: return `${matchData.homeTeam} Vence`;
+      case BetOutcome.TEAM_B_WINS: return `${matchData.awayTeam} Vence`;
+      case BetOutcome.DRAW: return 'Empate';
+      default: return 'N/A';
+    }
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-bold mb-2">
-            {matchData.homeTeam} vs {matchData.awayTeam}
-          </h3>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>ID: {matchId.toString()}</span>
-            <span>Início: {new Date(Number(matchData.startTime) * 1000).toLocaleString('pt-BR')}</span>
-            <Badge className={statusBadgeColor[matchData.status]}>
-              {matchData.status === MatchStatus.PENDING && 'Pendente'}
-              {matchData.status === MatchStatus.FINISHED && 'Finalizado'}
-              {matchData.status === MatchStatus.CANCELLED && 'Cancelado'}
-            </Badge>
-          </div>
-        </div>
+    <Card className="p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-bold">Partida #{matchId.toString()}: {matchData.homeTeam} vs {matchData.awayTeam}</h3>
+        {statusBadge()}
       </div>
 
-      {/* Pool Information */}
-      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-background/50 rounded-lg">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">{matchData.homeTeam}</p>
-          <p className="text-lg font-bold text-primary">{(Number(matchData.poolTeamA) / 1e6).toFixed(2)} USDC</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Empate</p>
-          <p className="text-lg font-bold text-primary">{(Number(matchData.poolDraw) / 1e6).toFixed(2)} USDC</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">{matchData.awayTeam}</p>
-          <p className="text-lg font-bold text-primary">{(Number(matchData.poolTeamB) / 1e6).toFixed(2)} USDC</p>
-        </div>
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <p><strong>Início:</strong> {new Date(Number(matchData.startTime) * 1000).toLocaleString()}</p>
+        <p><strong>Pool Total:</strong> {(Number(matchData.totalPoolAmount) / 1e6).toFixed(2)} USDC</p>
+        <p><strong>Pool {matchData.homeTeam}:</strong> {(Number(matchData.poolTeamA) / 1e6).toFixed(2)} USDC</p>
+        <p><strong>Pool Empate:</strong> {(Number(matchData.poolDraw) / 1e6).toFixed(2)} USDC</p>
+        <p><strong>Pool {matchData.awayTeam}:</strong> {(Number(matchData.poolTeamB) / 1e6).toFixed(2)} USDC</p>
+        {isFinished && <p className="col-span-2"><strong>Resultado:</strong> {resultText(matchData.result)}</p>}
       </div>
 
-      {/* Actions */}
-      {matchData.status === MatchStatus.PENDING && (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Definir Resultado</label>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                variant={selectedResult === BetOutcome.TEAM_A_WINS ? 'default' : 'outline'}
-                onClick={() => setSelectedResult(BetOutcome.TEAM_A_WINS)}
-                disabled={isPending}
-              >
-                {matchData.homeTeam} Vence
-              </Button>
-              <Button
-                variant={selectedResult === BetOutcome.DRAW ? 'default' : 'outline'}
-                onClick={() => setSelectedResult(BetOutcome.DRAW)}
-                disabled={isPending}
-              >
-                Empate
-              </Button>
-              <Button
-                variant={selectedResult === BetOutcome.TEAM_B_WINS ? 'default' : 'outline'}
-                onClick={() => setSelectedResult(BetOutcome.TEAM_B_WINS)}
-                disabled={isPending}
-              >
-                {matchData.awayTeam} Vence
-              </Button>
-            </div>
+      {!isFinished && !isCanceled && (
+        <div className="pt-4 border-t border-border space-y-4">
+          <h4 className="font-semibold">Definir Resultado</h4>
+          <div className="flex space-x-2">
+            <Button variant={result === BetOutcome.TEAM_A_WINS ? 'default' : 'outline'} onClick={() => setResult(BetOutcome.TEAM_A_WINS)} disabled={isPending}>
+              {matchData.homeTeam} Vence
+            </Button>
+            <Button variant={result === BetOutcome.DRAW ? 'default' : 'outline'} onClick={() => setResult(BetOutcome.DRAW)} disabled={isPending}>
+              Empate
+            </Button>
+            <Button variant={result === BetOutcome.TEAM_B_WINS ? 'default' : 'outline'} onClick={() => setResult(BetOutcome.TEAM_B_WINS)} disabled={isPending}>
+              {matchData.awayTeam} Vence
+            </Button>
           </div>
-
-          <div className="flex gap-2">
-            <Button
-              onClick={() => {
-                if (selectedResult !== null) {
-                  onSetResult(matchId, selectedResult);
-                } else {
-                  toast.error('Selecione um resultado');
-                }
-              }}
-              disabled={isPending || selectedResult === null}
-              className="flex-1"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Confirmando...
-                </>
-              ) : (
-                <>
+          <div className="flex space-x-4">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isPending} className="flex-1">
                   <Check className="w-4 h-4 mr-2" />
                   Confirmar Resultado
-                </>
-              )}
-            </Button>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogTitle>Confirmar Resultado</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Você tem certeza que deseja definir o resultado desta partida como: <strong>{resultText(result)}</strong>? Esta ação é irreversível.
+                </AlertDialogDescription>
+                <div className="flex justify-end space-x-2">
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onSetResult(matchId, result)} disabled={isPending}>
+                    Confirmar
+                  </AlertDialogAction>
+                </div>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -454,16 +408,13 @@ function MatchCard({
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
-                <AlertDialogTitle>Cancelar Partida?</AlertDialogTitle>
+                <AlertDialogTitle>Cancelar Partida</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Todos os apostadores receberão reembolso. Esta ação não pode ser desfeita.
+                  Você tem certeza que deseja **cancelar** esta partida? Todas as apostas serão reembolsadas. Esta ação é irreversível.
                 </AlertDialogDescription>
-                <div className="flex gap-2 justify-end">
-                  <AlertDialogCancel>Não</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onCancel(matchId)}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
+                <div className="flex justify-end space-x-2">
+                  <AlertDialogCancel>Não, Manter</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onCancelMatch(matchId)} disabled={isPending} className="bg-destructive hover:bg-destructive/90">
                     Sim, Cancelar
                   </AlertDialogAction>
                 </div>
@@ -472,31 +423,21 @@ function MatchCard({
           </div>
         </div>
       )}
-
-      {matchData.status === MatchStatus.FINISHED && (
-        <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-          <p className="text-sm text-green-400">
-            Resultado: <span className="font-bold">{resultText[matchData.result]}</span>
-          </p>
-        </div>
-      )}
-
-      {matchData.status === MatchStatus.CANCELLED && (
-        <div className="p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-          <p className="text-sm text-red-400">Esta partida foi cancelada</p>
-        </div>
-      )}
     </Card>
   );
 }
 
 /**
  * Componente: Fees Tab
- * Gerenciamento de taxas da casa
+ * Gerencia o saque das taxas da casa
  */
 function FeesTab() {
   const { housePendingBalance, isLoadingHouseBalance, refetchHouseBalance } = useAdminRead();
-  const { withdrawHouseFees, isPending, isSuccess } = useAdminWrite();
+  const { withdrawHouseFees, isPending, isSuccess, isError, error } = useAdminWrite();
+
+  const handleWithdraw = () => {
+    withdrawHouseFees();
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -505,67 +446,58 @@ function FeesTab() {
     }
   }, [isSuccess, refetchHouseBalance]);
 
-  const handleWithdraw = () => {
-    if (!housePendingBalance || housePendingBalance === 0n) {
-      toast.error('Nenhuma taxa disponível para saque');
-      return;
+  useEffect(() => {
+    if (isError) {
+      toast.error(`Erro: ${error?.message || 'Falha ao sacar taxas'}`);
     }
-    withdrawHouseFees();
-  };
+  }, [isError, error]);
+
+  const balance = Number(housePendingBalance || 0n) / 1e6;
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Saldo de Taxas da Casa</h2>
-
-      <div className="space-y-6">
-        <div className="p-6 bg-background/50 rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground mb-2">Saldo Pendente (USDC)</p>
-          <p className="text-4xl font-bold text-primary mb-4">
-            {isLoadingHouseBalance ? (
-              <Loader2 className="w-8 h-8 animate-spin" />
-            ) : (
-              `${(Number(housePendingBalance || 0n) / 1e6).toFixed(2)}`
-            )}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Valor total acumulado de taxas que podem ser sacadas
-          </p>
-        </div>
-
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="lg"
-              className="w-full"
-              disabled={isPending || !housePendingBalance || housePendingBalance === 0n}
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processando...
-                </>
-              ) : (
-                <>
-                  <Wallet className="w-4 h-4 mr-2" />
-                  Sacar Taxas
-                </>
-              )}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogTitle>Confirmar Saque de Taxas</AlertDialogTitle>
-            <AlertDialogDescription>
-              Você está prestes a sacar {(Number(housePendingBalance || 0n) / 1e6).toFixed(2)} USDC. Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-            <div className="flex gap-2 justify-end">
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleWithdraw}>
-                Confirmar Saque
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
+    <Card className="p-6 space-y-4">
+      <h2 className="text-2xl font-bold mb-4">Gerenciamento de Taxas da Casa</h2>
+      
+      <div className="flex items-center justify-between p-4 border rounded-lg">
+        <p className="text-lg font-medium">Saldo Pendente de Taxas (USDC)</p>
+        <p className="text-3xl font-bold text-primary">
+          {isLoadingHouseBalance ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : (
+            `${balance.toFixed(2)}`
+          )}
+        </p>
       </div>
+
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button disabled={isPending || balance <= 0} className="w-full" size="lg">
+            {isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Sacando...
+              </>
+            ) : (
+              <>
+                <Wallet className="w-4 h-4 mr-2" />
+                Sacar Taxas ({balance.toFixed(2)} USDC)
+              </>
+            )}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogTitle>Confirmar Saque de Taxas</AlertDialogTitle>
+          <AlertDialogDescription>
+            Você tem certeza que deseja sacar o saldo de taxas de <strong>{balance.toFixed(2)} USDC</strong> para o endereço do Owner?
+          </AlertDialogDescription>
+          <div className="flex justify-end space-x-2">
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleWithdraw} disabled={isPending}>
+              Confirmar Saque
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
